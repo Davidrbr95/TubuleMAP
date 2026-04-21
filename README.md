@@ -5,6 +5,9 @@
     TubuleMAP
 </h1>
 
+## Abstract
+Advances in tissue clearing and lightsheet microscopy enable mesoscale imaging of intact and convoluted tubular networks, yet analytical tools to map tubule continuity and assess injury patterns within and across tubules are limited. Here, we introduce TubuleMAP, a semi-automated pipeline for 3D tubule tracking and reconstruction that adapts to various morphological and staining patterns, leverages parallel processing of terabyte-scale data for large-scale analysis of tubular networks, and uses a napari interface for human oversight. Using TubuleMAP, we reconstruct 1,000 mouse nephrons in ~1-millimeter-thick kidney slab with ~400-fold higher throughput and <1% human effort compared to prior approaches. These reconstructions enable analysis of mesoscale nephron organization, quantitative profiling of pathologic morphologies, whole-nephron cytometry, and identification of rare morphologies at unprecedented scales. We demonstrate generalizability by reconstructing all seminiferous tubules in a mouse testis within a day. TubuleMAP is released as an open-source Python package.  
+
 ## Installation
 
 1. Create a virtual environment and activate it:
