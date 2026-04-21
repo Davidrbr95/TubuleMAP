@@ -2,7 +2,7 @@
     <div>
         <img src="icon.png" alt="TubuleMAP" width="50" height="50">
     </div>
-    Tubi-Tracker
+    TubuleMAP
 </h1>
 
 ## Installation
