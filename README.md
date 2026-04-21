@@ -1,6 +1,6 @@
 <h1>
     <div>
-        <img src="tubi_icon.png" alt="TubuleMAP" width="50" height="50">
+        <img src="icon.png" alt="TubuleMAP" width="50" height="50">
     </div>
     Tubi-Tracker
 </h1>
