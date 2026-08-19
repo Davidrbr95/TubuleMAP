@@ -59,7 +59,7 @@ To run the demo, activate the TubuleMAP environment and run:
 
 ```bash
 conda activate tubulemap
-python demos/demo.py
+python demos/main_demo.py
 ```
 
 The demo automatically loads `Kidney_demo.zarr`, uses the provided seed point in `test_seed_points/test1.json`, and configures the tracking parameters for the example dataset.
