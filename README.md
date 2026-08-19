@@ -36,3 +36,45 @@ Advances in tissue clearing and lightsheet microscopy enable mesoscale imaging o
     ```bash
     pip install -e "git+ssh://git@github.com/Davidrbr95/TubuleTracker.git@Feb2025Refactor#egg=tubulemap[dev]"
     ```
+
+
+## Demo
+
+A small example dataset and a predefined seed point are provided in the `demos` directory for testing the TubuleMAP tracking workflow.
+
+The demo files include:
+
+```text
+demos/
+├── main_demo.py
+├── Kidney.zarr/
+├── test_seed_points/
+│   └── test1.json
+├── expected_results/
+└── test_tracking_results/
+```
+
+To run the demo, activate the TubuleMAP environment and run:
+
+```bash
+conda activate tubulemap
+python demos/demo.py
+```
+
+The demo automatically loads `Kidney.zarr`, uses the provided seed point in `test_seed_points/test1.json`, and configures the tracking parameters for the example dataset.
+
+Tracking results are saved to:
+
+```text
+demos/test_tracking_results/
+```
+
+A representative expected tracking result is provided in:
+
+```text
+demos/expected_results/
+```
+
+The expected output is a 3D reconstructed tubule trajectory starting from the provided seed point.
+
+Typical demo runtime: approximately **5 minutes** on a GPU-enabled workstation.

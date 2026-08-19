@@ -1305,48 +1305,46 @@ class TubuleTrackerWidget(QWidget):
 
     def _map_obj_vertices_to_display(self, raw_vertices):
         """
-        Auto-map OBJ vertices to display axes by testing raw->zyx permutations.
-
-        OBJ files can encode coordinates in a different axis order than our canonical
-        z,y,x convention. We score each permutation using in-bounds ratio against the
-        active source shape and select the best candidate.
+        Convert OBJ vertices from xyz order to the canonical z,y,x order
+        used by TubuleMAP and napari image data.
         """
         arr = np.asarray(raw_vertices, dtype=float)
         if arr.ndim != 2 or arr.shape[1] < 3:
             return arr, {"mode": "passthrough"}
 
-        # Keep scoring fast on large meshes.
-        sample = arr
-        if len(arr) > 5000:
-            idx = np.linspace(0, len(arr) - 1, 5000).astype(int)
-            sample = arr[idx]
+        # OBJ / trimesh vertices are stored as [x, y, z].
+        # TubuleMAP uses canonical [z, y, x].
+        vertices_zyx = arr[:, [2, 1, 0]]
+
+        vertices_display = self._vertices_zyx_to_display_axes(
+            vertices_zyx
+        )
 
         shape_display = self._display_spatial_shape()
-        perms = list(permutations((0, 1, 2)))
-        best_perm = (0, 1, 2)
-        best_ratio = -1.0
-
-        for perm in perms:
-            candidate_zyx = sample[:, list(perm)]
-            candidate_display = self._vertices_zyx_to_display_axes(candidate_zyx)
-            ratio = self._in_bounds_ratio(candidate_display, shape_display)
-            score = -1.0 if ratio is None else float(ratio)
-            if score > best_ratio:
-                best_ratio = score
-                best_perm = perm
-
-        remapped_zyx = arr[:, list(best_perm)]
-        remapped_display = self._vertices_zyx_to_display_axes(remapped_zyx)
-        axis_info = {
-            "raw_to_zyx_perm": [int(i) for i in best_perm],
-            "display_axes": self._display_spatial_axes(),
-            "in_bounds_ratio": None if best_ratio < 0 else float(best_ratio),
-        }
-        self.viewer.status = (
-            "OBJ axis mapping selected: "
-            f"raw[{best_perm[0]}],raw[{best_perm[1]}],raw[{best_perm[2]}] -> z,y,x"
+        in_bounds_ratio = self._in_bounds_ratio(
+            vertices_display,
+            shape_display,
         )
-        return remapped_display, axis_info
+
+        axis_info = {
+            "mode": "obj_xyz_to_zyx",
+            "raw_axes": ["x", "y", "z"],
+            "canonical_axes": ["z", "y", "x"],
+            "raw_to_zyx_perm": [2, 1, 0],
+            "display_axes": self._display_spatial_axes(),
+            "in_bounds_ratio": (
+                None
+                if in_bounds_ratio is None
+                else float(in_bounds_ratio)
+            ),
+        }
+
+        self.viewer.status = (
+            "OBJ axis mapping: "
+            "x,y,z -> z,y,x"
+        )
+
+        return vertices_display, axis_info
 
     def _points_zyx_to_display_axes(self, points):
         """

@@ -167,8 +167,8 @@ class PointsWidget(QWidget):
             metadata["tubulemap_point_axes"] = target_axes
 
     def _reorder_all_points_layers_for_current_volume(self):
-        """Reorder all axis-aware points layers to the active reference volume axes."""
-        target_axes = self._resolve_display_axes()
+        """Reorder all axis-aware points layers to z,y,x order."""
+        target_axes = ["z", "y", "x"]
         for layer in self.viewer.layers:
             if isinstance(layer, napari.layers.Points):
                 self._reorder_points_layer_to_axes(layer, target_axes)
@@ -504,15 +504,30 @@ class PointsWidget(QWidget):
 
                 if is_downsample_enabled(self.viewer):
                     factor = get_downsample_factor(self.viewer)
-                    points = np.array(to_downsample_points(normalized_points, factor), dtype=float)
-                    output_axes = ["t", "c", "z", "y", "x"]
+                    points = np.array(
+                        [
+                            [
+                                point[0],
+                                point[1] / factor,
+                                point[2] / factor,
+                            ]
+                            for point in normalized_points
+                        ],
+                        dtype=float,
+                    )
                 else:
-                    output_axes = self._resolve_display_axes()
-                    points = self._map_zyx_to_axes(normalized_points, output_axes)
+                    points = normalized_points
 
-                layer = self.viewer.add_points(points, size=30, face_color='red', name=f'{base_name}')
+                output_axes = ["z", "y", "x"]
+
+                layer = self.viewer.add_points(
+                    points,
+                    size=30,
+                    face_color='red',
+                    name=f'{base_name}'
+                )
                 if hasattr(layer, "metadata") and isinstance(layer.metadata, dict):
-                    layer.metadata["tubulemap_point_axes"] = [str(axis).strip().lower() for axis in output_axes]
+                    layer.metadata["tubulemap_point_axes"] = output_axes
 
     def save_points(self):
         """
@@ -523,34 +538,30 @@ class PointsWidget(QWidget):
         points_layer = self.viewer.layers.selection.active
         if isinstance(points_layer, napari.layers.Points):
             points = points_layer.data.tolist()
-            points_layer_meta = getattr(points_layer, "metadata", {}) or {}
-            point_axes = None
-            if isinstance(points_layer_meta, dict):
-                axes_candidate = points_layer_meta.get("tubulemap_point_axes")
-                if isinstance(axes_candidate, (list, tuple)):
-                    point_axes = [str(axis).strip().lower() for axis in axes_candidate]
 
+            # Always save points as z,y,x
+            points = [
+                [
+                    float(point[-3]),
+                    float(point[-2]),
+                    float(point[-1]),
+                ]
+                for point in points
+            ]
+
+            # downsample to original
             if is_downsample_enabled(self.viewer):
                 factor = get_downsample_factor(self.viewer)
-                points = to_original_points(points, factor)
+                points = [
+                    [
+                        point[0],
+                        point[1] * factor,
+                        point[2] * factor,
+                    ]
+                    for point in points
+                ]
 
-            # If layer metadata is missing, infer a stable axis declaration
-            # from the currently resolved image/source axis order.
-            if point_axes is None:
-                inferred_axes = [str(axis).strip().lower() for axis in self._resolve_display_axes()]
-                point_dim = len(points[0]) if points and isinstance(points[0], (list, tuple)) else 3
-                if point_dim == 3 and len(inferred_axes) > 3:
-                    spatial_axes = [axis for axis in inferred_axes if axis in {"z", "y", "x"}]
-                    if len(spatial_axes) == 3:
-                        point_axes = spatial_axes
-                    else:
-                        point_axes = ["z", "y", "x"]
-                elif len(inferred_axes) == point_dim:
-                    point_axes = inferred_axes
-                elif point_dim >= 5:
-                    point_axes = ["t", "c", "z", "y", "x"]
-                else:
-                    point_axes = ["z", "y", "x"]
+            point_axes = ["z", "y", "x"]
 
             options = QFileDialog.Options()
             file_name, _ = QFileDialog.getSaveFileName(
@@ -706,7 +717,8 @@ class PointsListWidget(QWidget):
         self.list_widget.clear()
         if self.points_layer is not None:
             for i, point in enumerate(self.points_layer.data):
-                self.list_widget.addItem(f"Point {i}: {point}")
+                point_3d = point[-3:]
+                self.list_widget.addItem(f"Point {i}: {point_3d}")
             self.list_widget.setCurrentRow(self.current_index)
 
     def center_on_point(self):
@@ -724,24 +736,25 @@ class PointsListWidget(QWidget):
                 self.current_index = point_index
                 point = self.points_layer.data[point_index]
 
-                # dims_order = self.viewer.dims.order
+                point_3d = point[-3:]
 
-                # # Center the camera on the selected point
-                # self.viewer.camera.center = [point[dims_order[1]], point[dims_order[2]]]
-                # self.viewer.dims.set_current_step(dims_order[0], round(point[dims_order[0]]))
+                displayed = self.viewer.dims.displayed
+                spatial_start = self.viewer.dims.ndim - 3
 
-                if is_downsample_enabled(self.viewer) and len(point) >= 5:
-                    factor = get_downsample_factor(self.viewer)
-                    z = float(point[2])
-                    y = float(point[3]) * factor
-                    x = float(point[4]) * factor
-                    self.viewer.camera.center = [y, x]
-                    self.viewer.dims.set_current_step(2, round(z))
-                else:
-                    dims_order = self.viewer.dims.order
-                    self.viewer.camera.center = [point[dims_order[1]], point[dims_order[2]]]
-                    self.viewer.dims.set_current_step(dims_order[0], round(point[dims_order[0]]))
-                    
+                for axis in range(3):
+                    viewer_axis = spatial_start + axis
+                    if viewer_axis not in displayed:
+                        self.viewer.dims.set_current_step(
+                            viewer_axis,
+                            round(point_3d[axis])
+                        )
+
+                self.viewer.camera.center = [
+                    point_3d[axis - spatial_start]
+                    for axis in displayed
+                    if axis >= spatial_start
+                ]
+
                 # Update the selection to highlight the current point
                 self.points_layer.selected_data = {self.current_index}
 
@@ -850,13 +863,12 @@ class PointsListWidget(QWidget):
             self.points_layer.current_size = self.points_layer.size
 
     def update_selection(self, event):
-        """
-        Update the current selection index when the user selects a point in the list.
-        """
-        if self.changing_list:
+        if self.points_layer is None:
+            return
+
+        if not self.changing_list:
             self.current_index = self.list_widget.currentRow()
             # Ensure current_index is within valid range
             if self.current_index >= len(self.points_layer.data):
                 self.current_index = len(self.points_layer.data) - 1
-        self.changing_list = True
 

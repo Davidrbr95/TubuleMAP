@@ -293,11 +293,21 @@ def _resolve_data_set_path(
     preferred_idx: int,
     volume_override: Optional[str],
 ) -> Tuple[Path, Dict]:
+    parameter_candidates = list(
+        _iter_run_parameters_candidates(run_dirs, preferred_idx)
+    )
+
+    params_source: Dict = {}
+    if parameter_candidates:
+        _, params_source = parameter_candidates[0]
+
+    # A volume override should replace only the image source path.
+    # Keep the original tracking parameters, including the starting model.
     override_path = _resolve_existing_path(volume_override, track_dir)
     if override_path is not None:
-        return override_path, {}
+        return override_path, params_source
 
-    for _, run_params in _iter_run_parameters_candidates(run_dirs, preferred_idx):
+    for _, run_params in parameter_candidates:
         candidate = _resolve_existing_path(run_params.get("data_set_path"), track_dir)
         if candidate is not None:
             return candidate, run_params
@@ -430,7 +440,7 @@ def _fill_missing_planes_events(
         total_points=total_points,
     )
 
-    with tempfile.TemporaryDirectory(prefix="tubule_mesh_fill_") as temp_dir:
+    with tempfile.TemporaryDirectory(prefix="tubule_mesh_fill_",ignore_cleanup_errors=True,) as temp_dir:
         temp_save_dir = Path(temp_dir)
         trace_params = _build_fill_trace_params(
             points_json_path=points_json_path,

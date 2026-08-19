@@ -3,3 +3,8 @@ __pycache__/
 *.pyc
 *.pyo
 *.DS_Store
+
+.vscode/
+**/.vscode/
+*.egg-info/
+/demos/Kidney.zarr/

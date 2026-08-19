@@ -260,14 +260,38 @@ class HumanInLoopWidget(QWidget):
                 with open(result_trace, 'r') as f:
                     data = json.load(f)
                 # points = np.array(data['points'], dtype=float)
+                original_points = np.array(data['points'], dtype=float)
+
+                if original_points.ndim != 2 or original_points.shape[1] < 3:
+                    continue
+
+                # Always keep only z,y,x
+                points = original_points[:, -3:]
+
                 if is_downsample_enabled(self.viewer):
                     factor = get_downsample_factor(self.viewer)
-                    points = np.array(to_downsample_points(data["points"], factor), dtype=float)
-                else:
-                    points = np.array(data['points'], dtype=float)
-                layer_name = f"{os.path.basename(job_folder)}_{os.path.basename(latest_run)}"
-                layer = self.viewer.add_points(points, size=30, face_color='red', name=layer_name)
+                    points = np.array(
+                        [
+                            [
+                                point[0],
+                                point[1] / factor,
+                                point[2] / factor,
+                            ]
+                            for point in points
+                        ],
+                        dtype=float,
+                    )
 
+                layer_name = f"{os.path.basename(job_folder)}_{os.path.basename(latest_run)}"
+                layer = self.viewer.add_points(
+                    points,
+                    size=30,
+                    face_color='red',
+                    name=layer_name
+                )
+
+                if hasattr(layer, "metadata") and isinstance(layer.metadata, dict):
+                    layer.metadata["tubulemap_point_axes"] = ["z", "y", "x"]
                 # Store info
                 self.layer_run_map[layer.name] = {
                     "run_folder": latest_run,
@@ -328,14 +352,38 @@ class HumanInLoopWidget(QWidget):
                 with open(corrected_path, 'r') as f:
                     data = json.load(f)
                 # points = np.array(data['points'], dtype=float)
+                original_points = np.array(data['points'], dtype=float)
+
+                if original_points.ndim != 2 or original_points.shape[1] < 3:
+                    continue
+
+                # Always keep only z,y,x
+                points = original_points[:, -3:]
+
                 if is_downsample_enabled(self.viewer):
                     factor = get_downsample_factor(self.viewer)
-                    points = np.array(to_downsample_points(data["points"], factor), dtype=float)
-                else:
-                    points = np.array(data['points'], dtype=float)
-                layer_name = f"{os.path.basename(job_folder)}_{os.path.basename(latest_run)}_corrected"
-                layer = self.viewer.add_points(points, size=30, face_color='green', name=layer_name)
+                    points = np.array(
+                        [
+                            [
+                                point[0],
+                                point[1] / factor,
+                                point[2] / factor,
+                            ]
+                            for point in points
+                        ],
+                        dtype=float,
+                    )
 
+                layer_name = f"{os.path.basename(job_folder)}_{os.path.basename(latest_run)}_corrected"
+                layer = self.viewer.add_points(
+                    points,
+                    size=30,
+                    face_color='green',
+                    name=layer_name
+                )
+
+                if hasattr(layer, "metadata") and isinstance(layer.metadata, dict):
+                    layer.metadata["tubulemap_point_axes"] = ["z", "y", "x"]
                 # Store info
                 self.layer_run_map[layer.name] = {
                     "run_folder": latest_run,
@@ -401,24 +449,40 @@ class HumanInLoopWidget(QWidget):
                     out_path = os.path.join(run_folder, "corrected_points.json")
                     # downsample to original points
                     points = layer.data.tolist()
+
+                    # Always save z,y,x
+                    points = [
+                        [
+                            float(point[-3]),
+                            float(point[-2]),
+                            float(point[-1]),
+                        ]
+                        for point in points
+                    ]
+
+                    # downsample to original points
                     if is_downsample_enabled(self.viewer):
                         factor = get_downsample_factor(self.viewer)
-                        points = to_original_points(points, factor)
+                        points = [
+                            [
+                                point[0],
+                                point[1] * factor,
+                                point[2] * factor,
+                            ]
+                            for point in points
+                        ]
 
-                    point_axes = None
-                    layer_meta = getattr(layer, "metadata", {}) or {}
-                    axes_candidate = layer_meta.get("tubulemap_point_axes")
-                    if isinstance(axes_candidate, (list, tuple)):
-                        point_axes = [str(axis).strip().lower() for axis in axes_candidate]
-                    else:
-                        point_dim = layer.data.shape[1] if layer.data.ndim == 2 else 0
-                        if point_dim >= 5:
-                            point_axes = ["t", "c", "z", "y", "x"]
-                        else:
-                            point_axes = ["z", "y", "x"]
+                    point_axes = ["z", "y", "x"]
 
                     with open(out_path, 'w') as f:
-                        json.dump({'points': points, 'point_axes': point_axes}, f, indent=4)
+                        json.dump(
+                            {
+                                'points': points,
+                                'point_axes': point_axes,
+                            },
+                            f,
+                            indent=4
+                        )
 
                     # Update status 
                     update_status(status_path, chosen_status)
@@ -461,24 +525,40 @@ class HumanInLoopWidget(QWidget):
         out_path = os.path.join(run_folder, "corrected_points.json")
         # downsample to original points
         points = active_layer.data.tolist()
+
+        # Always save z,y,x
+        points = [
+            [
+                float(point[-3]),
+                float(point[-2]),
+                float(point[-1]),
+            ]
+            for point in points
+        ]
+
+        # downsample to original points
         if is_downsample_enabled(self.viewer):
             factor = get_downsample_factor(self.viewer)
-            points = to_original_points(points, factor)
+            points = [
+                [
+                    point[0],
+                    point[1] * factor,
+                    point[2] * factor,
+                ]
+                for point in points
+            ]
 
-        point_axes = None
-        layer_meta = getattr(active_layer, "metadata", {}) or {}
-        axes_candidate = layer_meta.get("tubulemap_point_axes")
-        if isinstance(axes_candidate, (list, tuple)):
-            point_axes = [str(axis).strip().lower() for axis in axes_candidate]
-        else:
-            point_dim = active_layer.data.shape[1] if active_layer.data.ndim == 2 else 0
-            if point_dim >= 5:
-                point_axes = ["t", "c", "z", "y", "x"]
-            else:
-                point_axes = ["z", "y", "x"]
+        point_axes = ["z", "y", "x"]
 
         with open(out_path, 'w') as f:
-            json.dump({'points': points, 'point_axes': point_axes}, f, indent=4)
+            json.dump(
+                {
+                    'points': points,
+                    'point_axes': point_axes,
+                },
+                f,
+                indent=4
+            )
 
         # Update status
         update_status(status_path, chosen_status)
