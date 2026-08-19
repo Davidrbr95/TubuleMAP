@@ -1,0 +1,10 @@
+{
+    "job_name": "A:\\20260817_demo_test_for_paper_v2\\TubuleMAP\\demos\\test_tracking_results\\test1\\Run_0",
+    "status": "done",
+    "iteration": 10,
+    "total_iterations": 10,
+    "error_msg": "All good, finshed all iterations",
+    "diameter": 88.44514672612578,
+    "model": "PCT-ECI",
+    "timestamp": "2026-08-19 11:11:18"
+}

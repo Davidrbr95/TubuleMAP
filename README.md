@@ -31,10 +31,12 @@ Advances in tissue clearing and lightsheet microscopy enable mesoscale imaging o
     conda install -c conda-forge higra=0.6.10
     ```
 
-3. To develop the code, run:
+3. To develop the code, clone the repository and install it in editable mode:
 
     ```bash
-    pip install -e "git+ssh://git@github.com/Davidrbr95/TubuleTracker.git@Feb2025Refactor#egg=tubulemap[dev]"
+    git clone https://github.com/Davidrbr95/TubuleMAP.git
+    cd TubuleMAP
+    pip install -e ".[dev]"
     ```
 
 
@@ -47,11 +49,10 @@ The demo files include:
 ```text
 demos/
 ├── main_demo.py
-├── Kidney.zarr/
+├── Kidney_demo.zarr/
 ├── test_seed_points/
 │   └── test1.json
-├── expected_results/
-└── test_tracking_results/
+└── expected_results/
 ```
 
 To run the demo, activate the TubuleMAP environment and run:
@@ -61,7 +62,7 @@ conda activate tubulemap
 python demos/demo.py
 ```
 
-The demo automatically loads `Kidney.zarr`, uses the provided seed point in `test_seed_points/test1.json`, and configures the tracking parameters for the example dataset.
+The demo automatically loads `Kidney_demo.zarr`, uses the provided seed point in `test_seed_points/test1.json`, and configures the tracking parameters for the example dataset.
 
 Tracking results are saved to:
 

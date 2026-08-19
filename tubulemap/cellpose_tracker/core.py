@@ -251,6 +251,7 @@ def apply_recentering(trace):
     if not trace.rot_improved_ecc: # Use rotation vector if rotation help otherwise use the vector calc by point locations
         trace.vectors[-1], _ = direction_vector(trace, trace.pointIndex) # finds vector from previous to current point (recentered current point)
 
+
 def looping_through_points(trace):
     
     """Compute looping through points."""

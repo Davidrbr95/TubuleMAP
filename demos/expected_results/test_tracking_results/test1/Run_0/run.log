@@ -1,0 +1,441 @@
+2026-08-19 11:09:43,632 - INFO - Start tracing
+2026-08-19 11:09:43,632 - INFO - Loading the starting key points and zarr volume
+2026-08-19 11:09:43,632 - INFO - Resolving Zarr source metadata from: {A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\Kidney_demo.zarr}
+2026-08-19 11:09:43,634 - INFO - Loaded source kind=ome run_level=0 scale_zyx=[1.0, 1.0, 1.0] t_idx=0 c_idx=0
+2026-08-19 11:09:43,634 - INFO - First normalized starting point (zyx)=[338.0, 449.488179038486, 280.10876618403796]
+2026-08-19 11:09:43,635 - INFO - Loading the Starting points from the provided file: {A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\Starting_Points.json}
+2026-08-19 11:09:43,635 - INFO - Initialize the tracking state
+2026-08-19 11:09:43,635 - WARNING - use_GPU=True but CUDA is unavailable. Falling back to CPU for Cellpose.
+2026-08-19 11:09:43,635 - INFO - Loading the initial model {PCT-ECI}
+2026-08-19 11:09:43,661 - INFO - >>>> loading model A:\20260817_demo_test_for_paper_v2\TubuleMAP\tubulemap\cellpose_tracker\models\PCT-ECI
+2026-08-19 11:09:43,706 - INFO - >>>> model diam_mean =  30.000 (ROIs rescaled to this size during training)
+2026-08-19 11:09:43,706 - INFO - >>>> model diam_labels =  87.754 (mean diameter of training ROIs)
+2026-08-19 11:09:43,706 - INFO - Trace parameters:
+2026-08-19 11:09:43,707 - INFO - Param: log | <class 'logging.Logger'>
+2026-08-19 11:09:43,707 - INFO - Param: adapt_diam_lower | <class 'float'>
+2026-08-19 11:09:43,707 - INFO - Param: adapt_diam_upper | <class 'float'>
+2026-08-19 11:09:43,707 - INFO - Param: adapt_window | <class 'int'>
+2026-08-19 11:09:43,707 - INFO - Param: latest_diameters | <class 'list'>
+2026-08-19 11:09:43,707 - INFO - Param: jitter | <class 'int'>
+2026-08-19 11:09:43,707 - INFO - Param: use_adaptive_diameter | <class 'bool'>
+2026-08-19 11:09:43,707 - INFO - Param: diameter | <class 'float'>
+2026-08-19 11:09:43,707 - INFO - Param: scale_jitter | <class 'float'>
+2026-08-19 11:09:43,707 - INFO - Param: scale_stepsize | <class 'float'>
+2026-08-19 11:09:43,707 - INFO - Param: node_parameter_record | <class 'dict'>
+2026-08-19 11:09:43,707 - INFO - Param: model | <class 'cellpose.models.CellposeModel'>
+2026-08-19 11:09:43,707 - INFO - Param: model_name | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: model_suite | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: starting_model | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: data_layer | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: data_set_path | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: data_source | <class 'bool'>
+2026-08-19 11:09:43,707 - INFO - Param: run_level | <class 'int'>
+2026-08-19 11:09:43,707 - INFO - Param: run_time_index | <class 'int'>
+2026-08-19 11:09:43,707 - INFO - Param: run_channel_index | <class 'int'>
+2026-08-19 11:09:43,707 - INFO - Param: auto_scale_for_level | <class 'bool'>
+2026-08-19 11:09:43,707 - INFO - Param: source_metadata | <class 'dict'>
+2026-08-19 11:09:43,707 - INFO - Param: source_axes | <class 'list'>
+2026-08-19 11:09:43,707 - INFO - Param: run_level_scale_zyx | <class 'list'>
+2026-08-19 11:09:43,707 - INFO - Param: run_level_translation_zyx | <class 'list'>
+2026-08-19 11:09:43,707 - INFO - Param: kp_layer | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: kp_path | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: kp_source | <class 'bool'>
+2026-08-19 11:09:43,707 - INFO - Param: multiprocessing | <class 'bool'>
+2026-08-19 11:09:43,707 - INFO - Param: name | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: experiment_folder | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: log_path | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: next_run_id | <class 'int'>
+2026-08-19 11:09:43,707 - INFO - Param: next_run_folder | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: param_json_path | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: result_trace_path | <class 'str'>
+2026-08-19 11:09:43,707 - INFO - Param: save_dir | <class 'str'>
+2026-08-19 11:09:43,708 - INFO - Param: save_rate | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: status_file_path | <class 'str'>
+2026-08-19 11:09:43,708 - INFO - Param: trace_savename | <class 'str'>
+2026-08-19 11:09:43,708 - INFO - Param: napari_viewer | <class 'napari.viewer.Viewer'>
+2026-08-19 11:09:43,708 - INFO - Param: center_transform | <class 'SimpleITK.SimpleITK.AffineTransform'>
+2026-08-19 11:09:43,708 - INFO - Param: vectors | <class 'list'>
+2026-08-19 11:09:43,708 - INFO - Param: vector_method | <class 'str'>
+2026-08-19 11:09:43,708 - INFO - Param: w | <class 'float'>
+2026-08-19 11:09:43,708 - INFO - Param: chunk_size | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: current_chunk | <class 'NoneType'>
+2026-08-19 11:09:43,708 - INFO - Param: dim | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: volume | <class 'tubulemap.utils.zarr_resolution.TCZYXArrayView'>
+2026-08-19 11:09:43,708 - INFO - Param: cummulative_iterator | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: iterations | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: points_list | <class 'list'>
+2026-08-19 11:09:43,708 - INFO - Param: pointIndex | <class 'NoneType'>
+2026-08-19 11:09:43,708 - INFO - Param: resample_step_size | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: curvenode | <class 'list'>
+2026-08-19 11:09:43,708 - INFO - Param: ply_faces | <class 'list'>
+2026-08-19 11:09:43,708 - INFO - Param: ply_vertices | <class 'list'>
+2026-08-19 11:09:43,708 - INFO - Param: write_ply | <class 'bool'>
+2026-08-19 11:09:43,708 - INFO - Param: should_cancel | <class 'function'>
+2026-08-19 11:09:43,708 - INFO - Param: start_idx | <class 'numpy.int32'>
+2026-08-19 11:09:43,708 - INFO - Param: stepsize | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: use_GPU | <class 'bool'>
+2026-08-19 11:09:43,708 - INFO - Param: cuda_device | <class 'str'>
+2026-08-19 11:09:43,708 - INFO - Param: use_recenter_point | <class 'bool'>
+2026-08-19 11:09:43,708 - INFO - Param: duration | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: bktk_window_size | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: bktk_search_radius | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: bktk_dir_thresh | <class 'float'>
+2026-08-19 11:09:43,708 - INFO - Param: bktk_min_gap | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: use_rotations | <class 'bool'>
+2026-08-19 11:09:43,708 - INFO - Param: rot_final_angle | <class 'int'>
+2026-08-19 11:09:43,708 - INFO - Param: overwite_w_rot | <class 'bool'>
+2026-08-19 11:09:43,708 - INFO - Param: rot_angles | <class 'list'>
+2026-08-19 11:09:43,708 - INFO - Param: rot_df | <class 'pandas.core.frame.DataFrame'>
+2026-08-19 11:09:43,708 - INFO - Param: rot_improved_ecc | <class 'bool'>
+2026-08-19 11:09:43,709 - INFO - Param: rot_vectors | <class 'list'>
+2026-08-19 11:09:43,709 - INFO - Param: rotation_angle | <class 'int'>
+2026-08-19 11:09:43,709 - INFO - Param: angle_steps | <class 'int'>
+2026-08-19 11:09:43,709 - INFO - Param: gt_window_size | <class 'int'>
+2026-08-19 11:09:43,709 - INFO - Param: ground_truth | <class 'str'>
+2026-08-19 11:09:43,709 - INFO - Param: ground_truth_curvenode | <class 'NoneType'>
+2026-08-19 11:09:43,709 - INFO - Param: monotonic_index | <class 'int'>
+2026-08-19 11:09:43,709 - INFO - Param: ground_truth_deviation | <class 'list'>
+2026-08-19 11:09:43,709 - INFO - Param: break_distance | <class 'int'>
+2026-08-19 11:09:43,709 - INFO - Param: centroid_ijk | <class 'NoneType'>
+2026-08-19 11:09:43,709 - INFO - Param: current_mask | <class 'NoneType'>
+2026-08-19 11:09:43,709 - INFO - Param: current_raw | <class 'NoneType'>
+2026-08-19 11:09:43,709 - INFO - Param: current_slice_transform | <class 'NoneType'>
+2026-08-19 11:09:43,709 - INFO - Param: df_current | <class 'NoneType'>
+2026-08-19 11:09:43,709 - INFO - Param: found_mask | <class 'bool'>
+2026-08-19 11:09:43,709 - INFO - Param: loop_time | <class 'NoneType'>
+2026-08-19 11:09:43,709 - INFO - Param: visited_functions | <class 'list'>
+2026-08-19 11:09:43,709 - INFO - Param: ts_attempts | <class 'int'>
+2026-08-19 11:09:43,709 - INFO - Param: ts_correlations | <class 'NoneType'>
+2026-08-19 11:09:43,709 - INFO - Param: ts_iter_correlations | <class 'list'>
+2026-08-19 11:09:43,709 - INFO - Param: ts_max_attempts | <class 'int'>
+2026-08-19 11:09:43,709 - INFO - Param: use_ultrack | <class 'bool'>
+2026-08-19 11:09:43,709 - INFO - Param: save_mode | <class 'str'>
+2026-08-19 11:09:43,709 - INFO - Param: async_io | <class 'bool'>
+2026-08-19 11:09:43,709 - INFO - Param: flush_every | <class 'int'>
+2026-08-19 11:09:43,709 - INFO - Param: queue_maxsize | <class 'int'>
+2026-08-19 11:09:43,709 - INFO - Param: detail_file_name | <class 'str'>
+2026-08-19 11:09:43,709 - INFO - Param: per_node_dir | <class 'str'>
+2026-08-19 11:09:43,709 - INFO - Param: keep_node_parameter_record_in_memory | <class 'bool'>
+2026-08-19 11:09:43,709 - INFO - Param: reference_image | <class 'SimpleITK.SimpleITK.Image'>
+2026-08-19 11:09:43,709 - INFO - Param: interpolator | <class 'int'>
+2026-08-19 11:09:43,709 - INFO - Param: resampler | <class 'SimpleITK.SimpleITK.ResampleImageFilter'>
+2026-08-19 11:09:43,709 - INFO - Starting the trace
+2026-08-19 11:09:43,709 - INFO - Starting tracing loop
+2026-08-19 11:09:43,711 - INFO - Tracing PointIndex: {0.0}
+2026-08-19 11:09:43,712 - INFO - Initializing tracing...0
+2026-08-19 11:09:43,712 - INFO - Initializing the trace: finding the direction vector of the last 2 points
+2026-08-19 11:09:43,713 - INFO - Tracing PointIndex: {1.0}
+2026-08-19 11:09:43,713 - INFO - Initializing tracing...1
+2026-08-19 11:09:43,713 - INFO - Initializing the trace: finding the direction vector of the last 2 points
+2026-08-19 11:09:43,713 - INFO - Tracing PointIndex: {2.0}
+2026-08-19 11:09:43,713 - INFO - Initializing tracing...2
+2026-08-19 11:09:43,715 - INFO - Initializing the trace: finding the direction vector of the last 2 points
+2026-08-19 11:09:43,715 - INFO - Tracing PointIndex: {3.0}
+2026-08-19 11:09:43,715 - INFO - Initializing tracing...3
+2026-08-19 11:09:43,715 - INFO - Initializing the trace: finding the direction vector of the last 2 points
+2026-08-19 11:09:43,716 - INFO - Tracing PointIndex: {4.0}
+2026-08-19 11:09:43,716 - INFO - Initializing tracing...4
+2026-08-19 11:09:43,716 - INFO - Initializing the trace: finding the direction vector of the last 2 points
+2026-08-19 11:09:43,716 - INFO - Tracing PointIndex: {5.0}
+2026-08-19 11:09:43,717 - INFO - Initializing tracing...5
+2026-08-19 11:09:43,717 - INFO - Initializing the trace: finding the direction vector of the last 2 points
+2026-08-19 11:09:43,717 - INFO - Tracing PointIndex: {6.0}
+2026-08-19 11:09:43,718 - INFO - Initializing tracing...6
+2026-08-19 11:09:43,718 - INFO - Initializing the trace: finding the direction vector of the last 2 points
+2026-08-19 11:09:43,718 - INFO - Tracing PointIndex: {7.0}
+2026-08-19 11:09:43,718 - INFO - Initializing tracing...7
+2026-08-19 11:09:43,718 - INFO - Initializing the trace: finding the direction vector of the last 2 points
+2026-08-19 11:09:43,719 - INFO - Tracing PointIndex: {8.0}
+2026-08-19 11:09:43,719 - INFO - Initializing tracing...8
+2026-08-19 11:09:43,719 - INFO - Initializing the trace: finding the direction vector of the last 2 points
+2026-08-19 11:09:43,720 - INFO - Tracing PointIndex: {9.0}
+2026-08-19 11:09:43,720 - INFO - Initializing tracing...9
+2026-08-19 11:09:43,720 - INFO - Initializing the trace: finding the direction vector of the last 2 points
+2026-08-19 11:09:43,720 - INFO - Tracing PointIndex: {10.0}
+2026-08-19 11:09:43,721 - INFO - Initializing tracing...10
+2026-08-19 11:09:43,721 - INFO - Initializing the trace: finding the direction vector of the last 2 points
+2026-08-19 11:09:43,721 - INFO - Tracing PointIndex: {11.0}
+2026-08-19 11:09:43,722 - INFO - Dynamic loading of new image chunk from zarr
+2026-08-19 11:09:47,324 - INFO - In analysis diameter: 9    97.283038
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:09:47,324 - INFO - No troubleshooting necessary: reseting the troubleshooting parameters
+2026-08-19 11:09:47,324 - INFO - Applying rotations: The starting ecc is {0.677417}
+2026-08-19 11:09:49,287 - INFO - In analysis diameter: 6    109.656164
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:09:49,287 - INFO - Computing vectors for rotation (axis-angle about MINOR axis)
+2026-08-19 11:09:49,288 - INFO - Applying rotations
+2026-08-19 11:09:49,328 - INFO - 0%|          | 0/4 [00:00<?, ?it/s]
+2026-08-19 11:09:51,232 - WARNING - QWindowsWindow::setGeometry: Unable to set geometry 1920x1013+0+23 (frame: 1936x1052-8-8) on QWidgetWindow/"_QtMainWindowClassWindow" on "\\.\DISPLAY225". Resulting geometry: 1920x1009+0+23 (frame: 1936x1048-8-8) margins: 8, 31, 8, 8 minimum size: 954x1013 MINMAXINFO maxSize=0,0 maxpos=0,0 mintrack=970,1052 maxtrack=0,0)
+2026-08-19 11:09:56,472 - INFO - 100%|##########| 4/4 [00:07<00:00,  1.79s/it]
+2026-08-19 11:09:56,477 - INFO - In analysis diameter: 8    109.754815
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:09:56,481 - INFO - In analysis diameter: 6    108.805245
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:09:56,486 - INFO - In analysis diameter: 6    110.177429
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:09:56,491 - INFO - In analysis diameter: 5    113.714646
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:09:56,491 - INFO - Identifying the best plane after rotations
+2026-08-19 11:09:56,492 - INFO - Rotations failed to find plane that improved the eccentricity
+2026-08-19 11:09:56,492 - INFO - Adaptive diameter set to: 104.82808190261373, 104.82808190261373
+2026-08-19 11:09:56,492 - INFO - Starting the backtrack check
+2026-08-19 11:09:56,492 - CRITICAL - Trace parameter stepsize  = 15
+2026-08-19 11:09:56,492 - INFO - Saving curve nodes to file: A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\result_trace.json
+2026-08-19 11:09:56,492 - INFO - File A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\result_trace.json does not exist. Creating a new file.
+2026-08-19 11:09:56,494 - INFO - Finished saving curve nodes to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\result_trace.json.
+2026-08-19 11:09:57,759 - INFO - Saved images for iteration 11 to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\ortho_planes.hdf5
+2026-08-19 11:09:57,760 - INFO - Tracing PointIndex: {12.0}
+2026-08-19 11:09:59,282 - INFO - In analysis diameter: 10    94.709939
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:09:59,282 - INFO - No troubleshooting necessary: reseting the troubleshooting parameters
+2026-08-19 11:09:59,282 - INFO - Applying rotations: The starting ecc is {0.474371}
+2026-08-19 11:10:00,764 - INFO - In analysis diameter: 8    95.559793
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:00,765 - INFO - Computing vectors for rotation (axis-angle about MINOR axis)
+2026-08-19 11:10:00,765 - INFO - Applying rotations
+2026-08-19 11:10:00,804 - INFO - 0%|          | 0/4 [00:00<?, ?it/s]
+2026-08-19 11:10:06,958 - INFO - 100%|##########| 4/4 [00:06<00:00,  1.54s/it]
+2026-08-19 11:10:06,963 - INFO - In analysis diameter: 9    94.103034
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:06,968 - INFO - In analysis diameter: 8    95.326338
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:06,973 - INFO - In analysis diameter: 8    96.487966
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:06,977 - INFO - In analysis diameter: 8    98.382758
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:06,978 - INFO - Identifying the best plane after rotations
+2026-08-19 11:10:06,978 - INFO - Rotations failed to find plane that improved the eccentricity
+2026-08-19 11:10:06,978 - INFO - Adaptive diameter set to: 101.73865222766283, 101.73865222766283
+2026-08-19 11:10:06,979 - INFO - Starting the backtrack check
+2026-08-19 11:10:06,979 - CRITICAL - Trace parameter stepsize  = 15
+2026-08-19 11:10:06,981 - INFO - Saved images for iteration 12 to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\ortho_planes.hdf5
+2026-08-19 11:10:06,982 - INFO - Tracing PointIndex: {13.0}
+2026-08-19 11:10:08,477 - INFO - In analysis diameter: 11    93.171601
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:08,477 - INFO - No troubleshooting necessary: reseting the troubleshooting parameters
+2026-08-19 11:10:08,477 - INFO - Applying rotations: The starting ecc is {0.456650}
+2026-08-19 11:10:09,911 - INFO - In analysis diameter: 12    86.848552
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:09,911 - INFO - Computing vectors for rotation (axis-angle about MINOR axis)
+2026-08-19 11:10:09,911 - INFO - Applying rotations
+2026-08-19 11:10:09,954 - INFO - 0%|          | 0/4 [00:00<?, ?it/s]
+2026-08-19 11:10:15,661 - INFO - 100%|##########| 4/4 [00:05<00:00,  1.43s/it]
+2026-08-19 11:10:15,667 - INFO - In analysis diameter: 11    88.071422
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:15,672 - INFO - In analysis diameter: 12    87.177789
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:15,677 - INFO - In analysis diameter: 11    87.476681
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:15,681 - INFO - In analysis diameter: 10    89.77531
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:15,682 - INFO - Identifying the best plane after rotations
+2026-08-19 11:10:15,683 - INFO - Rotation was successful
+2026-08-19 11:10:15,683 - INFO - Adaptive diameter set to: 98.17315934227273, 98.17315934227273
+2026-08-19 11:10:15,683 - INFO - Starting the backtrack check
+2026-08-19 11:10:15,684 - CRITICAL - Trace parameter stepsize  = 15
+2026-08-19 11:10:15,686 - INFO - Saved images for iteration 13 to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\ortho_planes.hdf5
+2026-08-19 11:10:15,687 - INFO - Tracing PointIndex: {14.0}
+2026-08-19 11:10:17,053 - INFO - In analysis diameter: 10    91.690789
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:17,053 - INFO - No troubleshooting necessary: reseting the troubleshooting parameters
+2026-08-19 11:10:17,053 - INFO - Applying rotations: The starting ecc is {0.267594}
+2026-08-19 11:10:18,299 - INFO - In analysis diameter: 13    87.0243
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:18,299 - INFO - Computing vectors for rotation (axis-angle about MINOR axis)
+2026-08-19 11:10:18,299 - INFO - Applying rotations
+2026-08-19 11:10:18,340 - INFO - 0%|          | 0/4 [00:00<?, ?it/s]
+2026-08-19 11:10:24,137 - INFO - 100%|##########| 4/4 [00:05<00:00,  1.45s/it]
+2026-08-19 11:10:24,143 - INFO - In analysis diameter: 11    87.701996
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:24,143 - INFO - In analysis diameter: 12    86.613667
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:24,158 - INFO - In analysis diameter: 13    87.075493
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:24,158 - INFO - In analysis diameter: 12    90.199782
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:24,158 - INFO - Identifying the best plane after rotations
+2026-08-19 11:10:24,158 - INFO - Rotation was successful
+2026-08-19 11:10:24,168 - INFO - Adaptive diameter set to: 95.86126097356305, 95.86126097356305
+2026-08-19 11:10:24,168 - INFO - Starting the backtrack check
+2026-08-19 11:10:24,168 - CRITICAL - Trace parameter stepsize  = 15
+2026-08-19 11:10:24,168 - INFO - Saved images for iteration 14 to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\ortho_planes.hdf5
+2026-08-19 11:10:24,168 - INFO - Tracing PointIndex: {15.0}
+2026-08-19 11:10:25,465 - INFO - In analysis diameter: 11    87.95569
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:25,480 - INFO - No troubleshooting necessary: reseting the troubleshooting parameters
+2026-08-19 11:10:25,480 - INFO - Applying rotations: The starting ecc is {0.485529}
+2026-08-19 11:10:26,668 - INFO - In analysis diameter: 9    86.44445
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:26,668 - INFO - Computing vectors for rotation (axis-angle about MINOR axis)
+2026-08-19 11:10:26,668 - INFO - Applying rotations
+2026-08-19 11:10:26,719 - INFO - 0%|          | 0/4 [00:00<?, ?it/s]
+2026-08-19 11:10:31,692 - INFO - 100%|##########| 4/4 [00:04<00:00,  1.24s/it]
+2026-08-19 11:10:31,698 - INFO - In analysis diameter: 9    88.013575
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:31,702 - INFO - In analysis diameter: 8    86.665103
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:31,706 - INFO - In analysis diameter: 10    86.980396
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:31,711 - INFO - In analysis diameter: 9    88.683711
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:31,711 - INFO - Identifying the best plane after rotations
+2026-08-19 11:10:31,712 - INFO - Rotation was successful
+2026-08-19 11:10:31,713 - INFO - Adaptive diameter set to: 94.38111689417515, 94.38111689417515
+2026-08-19 11:10:31,713 - INFO - Starting the backtrack check
+2026-08-19 11:10:31,713 - CRITICAL - Trace parameter stepsize  = 15
+2026-08-19 11:10:31,716 - INFO - Saved images for iteration 15 to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\ortho_planes.hdf5
+2026-08-19 11:10:31,717 - INFO - Tracing PointIndex: {16.0}
+2026-08-19 11:10:32,950 - INFO - In analysis diameter: 8    87.665694
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:32,950 - INFO - No troubleshooting necessary: reseting the troubleshooting parameters
+2026-08-19 11:10:32,950 - INFO - Applying rotations: The starting ecc is {0.526993}
+2026-08-19 11:10:34,228 - INFO - In analysis diameter: 9    85.272921
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:34,228 - INFO - Computing vectors for rotation (axis-angle about MINOR axis)
+2026-08-19 11:10:34,228 - INFO - Applying rotations
+2026-08-19 11:10:34,282 - INFO - 0%|          | 0/4 [00:00<?, ?it/s]
+2026-08-19 11:10:39,514 - INFO - 100%|##########| 4/4 [00:05<00:00,  1.31s/it]
+2026-08-19 11:10:39,529 - INFO - In analysis diameter: 8    87.513061
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:39,529 - INFO - In analysis diameter: 9    85.875511
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:39,543 - INFO - In analysis diameter: 10    86.149366
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:39,545 - INFO - In analysis diameter: 10    87.774555
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:39,545 - INFO - Identifying the best plane after rotations
+2026-08-19 11:10:39,545 - INFO - Rotation was successful
+2026-08-19 11:10:39,545 - INFO - Adaptive diameter set to: 93.16603038244303, 93.16603038244303
+2026-08-19 11:10:39,545 - INFO - Starting the backtrack check
+2026-08-19 11:10:39,545 - CRITICAL - Trace parameter stepsize  = 15
+2026-08-19 11:10:39,545 - INFO - Saving curve nodes to file: A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\result_trace.json
+2026-08-19 11:10:39,545 - INFO - File A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\result_trace.json exists. Resetting points.
+2026-08-19 11:10:39,545 - INFO - Finished saving curve nodes to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\result_trace.json.
+2026-08-19 11:10:40,559 - INFO - Saved images for iteration 16 to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\ortho_planes.hdf5
+2026-08-19 11:10:40,559 - INFO - Tracing PointIndex: {17.0}
+2026-08-19 11:10:41,746 - INFO - In analysis diameter: 9    86.518063
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:41,746 - INFO - No troubleshooting necessary: reseting the troubleshooting parameters
+2026-08-19 11:10:41,746 - INFO - Applying rotations: The starting ecc is {0.579197}
+2026-08-19 11:10:43,128 - INFO - In analysis diameter: 11    86.892523
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:43,128 - INFO - Computing vectors for rotation (axis-angle about MINOR axis)
+2026-08-19 11:10:43,129 - INFO - Applying rotations
+2026-08-19 11:10:43,185 - INFO - 0%|          | 0/4 [00:00<?, ?it/s]
+2026-08-19 11:10:48,358 - INFO - 100%|##########| 4/4 [00:05<00:00,  1.29s/it]
+2026-08-19 11:10:48,363 - INFO - In analysis diameter: 9    87.665694
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:48,367 - INFO - In analysis diameter: 9    86.819227
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:48,371 - INFO - In analysis diameter: 10    86.833891
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:48,375 - INFO - In analysis diameter: 9    88.071422
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:48,375 - INFO - Identifying the best plane after rotations
+2026-08-19 11:10:48,376 - INFO - Rotation was successful
+2026-08-19 11:10:48,376 - INFO - Adaptive diameter set to: 92.37267990777315, 92.37267990777315
+2026-08-19 11:10:48,376 - INFO - Starting the backtrack check
+2026-08-19 11:10:48,377 - CRITICAL - Trace parameter stepsize  = 15
+2026-08-19 11:10:48,380 - INFO - Saved images for iteration 17 to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\ortho_planes.hdf5
+2026-08-19 11:10:48,382 - INFO - Tracing PointIndex: {18.0}
+2026-08-19 11:10:49,606 - INFO - In analysis diameter: 9    89.860365
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:49,606 - INFO - No troubleshooting necessary: reseting the troubleshooting parameters
+2026-08-19 11:10:49,606 - INFO - Applying rotations: The starting ecc is {0.639936}
+2026-08-19 11:10:50,950 - INFO - In analysis diameter: 8    87.185091
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:50,950 - INFO - Computing vectors for rotation (axis-angle about MINOR axis)
+2026-08-19 11:10:50,950 - INFO - Applying rotations
+2026-08-19 11:10:51,014 - INFO - 0%|          | 0/4 [00:00<?, ?it/s]
+2026-08-19 11:10:56,215 - INFO - 100%|##########| 4/4 [00:05<00:00,  1.30s/it]
+2026-08-19 11:10:56,230 - INFO - In analysis diameter: 10    89.505437
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:56,230 - INFO - In analysis diameter: 10    87.534882
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:56,230 - INFO - In analysis diameter: 7    87.629377
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:56,246 - INFO - In analysis diameter: 7    88.827166
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:56,246 - INFO - Identifying the best plane after rotations
+2026-08-19 11:10:56,246 - INFO - Rotation was successful
+2026-08-19 11:10:56,246 - INFO - Adaptive diameter set to: 91.84564623923826, 91.84564623923826
+2026-08-19 11:10:56,246 - INFO - Starting the backtrack check
+2026-08-19 11:10:56,246 - CRITICAL - Trace parameter stepsize  = 15
+2026-08-19 11:10:56,246 - INFO - Saved images for iteration 18 to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\ortho_planes.hdf5
+2026-08-19 11:10:56,246 - INFO - Tracing PointIndex: {19.0}
+2026-08-19 11:10:57,450 - INFO - In analysis diameter: 9    90.107983
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:57,450 - INFO - No troubleshooting necessary: reseting the troubleshooting parameters
+2026-08-19 11:10:57,450 - INFO - Applying rotations: The starting ecc is {0.586783}
+2026-08-19 11:10:58,606 - INFO - In analysis diameter: 7    89.106239
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:10:58,606 - INFO - Computing vectors for rotation (axis-angle about MINOR axis)
+2026-08-19 11:10:58,606 - INFO - Applying rotations
+2026-08-19 11:10:58,678 - INFO - 0%|          | 0/4 [00:00<?, ?it/s]
+2026-08-19 11:11:03,637 - INFO - 100%|##########| 4/4 [00:04<00:00,  1.24s/it]
+2026-08-19 11:11:03,653 - INFO - In analysis diameter: 8    91.119674
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:03,660 - INFO - In analysis diameter: 6    89.675978
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:03,661 - INFO - In analysis diameter: 6    88.525643
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:03,665 - INFO - In analysis diameter: 7    89.291803
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:03,665 - INFO - Identifying the best plane after rotations
+2026-08-19 11:11:03,668 - INFO - Rotation was successful
+2026-08-19 11:11:03,668 - INFO - Adaptive diameter set to: 91.51364587537203, 91.51364587537203
+2026-08-19 11:11:03,668 - INFO - Starting the backtrack check
+2026-08-19 11:11:03,668 - CRITICAL - Trace parameter stepsize  = 15
+2026-08-19 11:11:03,672 - INFO - Saved images for iteration 19 to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\ortho_planes.hdf5
+2026-08-19 11:11:03,674 - INFO - Tracing PointIndex: {20.0}
+2026-08-19 11:11:04,887 - INFO - In analysis diameter: 5    88.410506
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:04,887 - INFO - No troubleshooting necessary: reseting the troubleshooting parameters
+2026-08-19 11:11:04,887 - INFO - Applying rotations: The starting ecc is {0.592586}
+2026-08-19 11:11:05,980 - INFO - In analysis diameter: 6    87.534882
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:05,980 - INFO - Computing vectors for rotation (axis-angle about MINOR axis)
+2026-08-19 11:11:05,980 - INFO - Applying rotations
+2026-08-19 11:11:06,043 - INFO - 0%|          | 0/4 [00:00<?, ?it/s]
+2026-08-19 11:11:11,035 - INFO - 100%|##########| 4/4 [00:04<00:00,  1.25s/it]
+2026-08-19 11:11:11,043 - INFO - In analysis diameter: 9    91.210455
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:11,050 - INFO - In analysis diameter: 7    88.877321
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:11,056 - INFO - In analysis diameter: 7    88.02804
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:11,061 - INFO - In analysis diameter: 4    88.475289
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:11,061 - INFO - Identifying the best plane after rotations
+2026-08-19 11:11:11,063 - INFO - Rotation was successful
+2026-08-19 11:11:11,063 - INFO - Adaptive diameter set to: 90.40137794578064, 90.40137794578064
+2026-08-19 11:11:11,063 - INFO - Starting the backtrack check
+2026-08-19 11:11:11,064 - CRITICAL - Trace parameter stepsize  = 15
+2026-08-19 11:11:11,069 - INFO - Saved images for iteration 20 to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\ortho_planes.hdf5
+2026-08-19 11:11:11,070 - INFO - Tracing PointIndex: {21.0}
+2026-08-19 11:11:12,606 - INFO - In analysis diameter: 10    90.783697
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:12,606 - INFO - No troubleshooting necessary: reseting the troubleshooting parameters
+2026-08-19 11:11:12,606 - INFO - Applying rotations: The starting ecc is {0.590193}
+2026-08-19 11:11:13,842 - INFO - In analysis diameter: 9    89.718562
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:13,842 - INFO - Computing vectors for rotation (axis-angle about MINOR axis)
+2026-08-19 11:11:13,842 - INFO - Applying rotations
+2026-08-19 11:11:13,905 - INFO - 0%|          | 0/4 [00:00<?, ?it/s]
+2026-08-19 11:11:18,700 - INFO - 100%|##########| 4/4 [00:04<00:00,  1.20s/it]
+2026-08-19 11:11:18,702 - INFO - In analysis diameter: 11    91.336003
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:18,702 - INFO - In analysis diameter: 7    90.093852
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:18,702 - INFO - In analysis diameter: 7    89.177655
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:18,717 - INFO - In analysis diameter: 6    91.056773
+Name: equivalent_diameter_area, dtype: float64
+2026-08-19 11:11:18,717 - INFO - Identifying the best plane after rotations
+2026-08-19 11:11:18,717 - INFO - Rotation was successful
+2026-08-19 11:11:18,717 - INFO - Adaptive diameter set to: 88.44514672612578, 88.44514672612578
+2026-08-19 11:11:18,717 - INFO - Starting the backtrack check
+2026-08-19 11:11:18,717 - CRITICAL - Trace parameter stepsize  = 15
+2026-08-19 11:11:18,717 - INFO - Saving curve nodes to file: A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\result_trace.json
+2026-08-19 11:11:18,717 - INFO - File A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\result_trace.json exists. Resetting points.
+2026-08-19 11:11:18,717 - INFO - Finished saving curve nodes to A:\20260817_demo_test_for_paper_v2\TubuleMAP\demos\test_tracking_results\test1\Run_0\result_trace.json.

@@ -1,0 +1,70 @@
+{
+    "multiscales": [
+        {
+            "axes": [
+                {
+                    "name": "z",
+                    "type": "space",
+                    "unit": "pixel"
+                },
+                {
+                    "name": "y",
+                    "type": "space",
+                    "unit": "pixel"
+                },
+                {
+                    "name": "x",
+                    "type": "space",
+                    "unit": "pixel"
+                }
+            ],
+            "datasets": [
+                {
+                    "path": "0",
+                    "transform": {
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "type": "scale"
+                    }
+                },
+                {
+                    "path": "1",
+                    "transform": {
+                        "scale": [
+                            2.0,
+                            2.0,
+                            2.0
+                        ],
+                        "type": "scale"
+                    }
+                },
+                {
+                    "path": "2",
+                    "transform": {
+                        "scale": [
+                            4.0,
+                            4.0,
+                            4.0
+                        ],
+                        "type": "scale"
+                    }
+                },
+                {
+                    "path": "3",
+                    "transform": {
+                        "scale": [
+                            8.0,
+                            8.0,
+                            8.0
+                        ],
+                        "type": "scale"
+                    }
+                }
+            ],
+            "version": "0.4"
+        }
+    ]
+}

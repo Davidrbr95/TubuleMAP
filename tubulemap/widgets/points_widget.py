@@ -167,11 +167,31 @@ class PointsWidget(QWidget):
             metadata["tubulemap_point_axes"] = target_axes
 
     def _reorder_all_points_layers_for_current_volume(self):
-        """Reorder all axis-aware points layers to z,y,x order."""
-        target_axes = ["z", "y", "x"]
+        """Keep existing points dimensionality unchanged."""
         for layer in self.viewer.layers:
-            if isinstance(layer, napari.layers.Points):
-                self._reorder_points_layer_to_axes(layer, target_axes)
+            if not isinstance(layer, napari.layers.Points):
+                continue
+
+            metadata = getattr(layer, "metadata", {}) or {}
+            source_axes = metadata.get(
+                "tubulemap_point_axes"
+            )
+
+            if not isinstance(
+                source_axes,
+                (list, tuple),
+            ):
+                continue
+
+            # Do not change the dimensionality of an existing Points layer.
+            target_axes = list(
+                source_axes
+            )
+
+            self._reorder_points_layer_to_axes(
+                layer,
+                target_axes,
+            )
 
     def _on_layers_inserted(self, event):
         """Handle layer insertion events to keep point axes in sync with loaded volumes."""

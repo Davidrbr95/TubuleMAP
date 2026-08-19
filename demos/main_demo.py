@@ -61,7 +61,7 @@ DEMO_DIR = Path(
 
 DEMO_ZARR_PATH = (
     DEMO_DIR
-    / "Kidney.zarr"
+    / "Kidney_demo.zarr"
 )
 
 
@@ -84,7 +84,7 @@ DEMO_OUTPUT_DIR = (
 
 # Tracking parameters used for the demo.
 #
-# These values are selected specifically for Kidney.zarr
+# These values are selected specifically for Kidney_demo.zarr
 # so that the demo runs quickly and produces a representative
 # tubule trace.
 
@@ -100,7 +100,7 @@ DEMO_TRACKING_PARAMETERS = {
 
     "stepsize": 15,
 
-    "iterations": 20,
+    "iterations": 10,
 
     "jitter": 30,
 
@@ -143,7 +143,7 @@ DEMO_CHANNEL_INDEX = 0
 # ============================================================
 
 def load_demo_zarr(viewer):
-    """Load the bundled Kidney.zarr dataset into napari."""
+    """Load the bundled Kidney_demo.zarr dataset into napari."""
 
     # --------------------------------------------------------
     # Check dataset
@@ -540,7 +540,7 @@ def main():
 
 
     # --------------------------------------------------------
-    # Load bundled Kidney.zarr
+    # Load bundled Kidney_demo.zarr
     # --------------------------------------------------------
 
     load_demo_zarr(

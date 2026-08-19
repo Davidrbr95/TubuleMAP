@@ -1,0 +1,1 @@
+{"shape":[1,1,501,1001,1001],"chunks":[1,1,32,64,64],"fill_value":0,"dtype":">u2","filters":[],"dimension_separator":"/","zarr_format":2,"order":"C","compressor":{"id":"zstd","level":3}}
