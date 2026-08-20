@@ -74,10 +74,6 @@ def _restore_points_from_downsample_if_needed(trace, points):
     if not is_downsample_enabled(trace.napari_viewer):
         return points
 
-    first_point = list(points[0]) if points else []
-    if len(first_point) < 5:
-        return points
-
     factor = float(get_downsample_factor(trace.napari_viewer))
     restored = to_original_points(points, factor)
     trace.log.info(

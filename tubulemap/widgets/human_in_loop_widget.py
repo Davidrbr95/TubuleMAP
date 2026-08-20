@@ -10,8 +10,13 @@ from qtpy.QtWidgets import (
 )
 import napari
 from tubulemap.widgets.downsample_control_widget import (
+    ORIGINAL_POINT_AXES_KEY,
+    POINT_AXES_KEY,
+    POINT_SIDECAR_KEY,
     get_downsample_factor,
     is_downsample_enabled,
+    restore_points_from_3d_display,
+    split_points_for_3d_display,
     to_downsample_points,
     to_original_points,
 )
@@ -259,28 +264,20 @@ class HumanInLoopWidget(QWidget):
             if os.path.exists(result_trace):
                 with open(result_trace, 'r') as f:
                     data = json.load(f)
-                # points = np.array(data['points'], dtype=float)
-                original_points = np.array(data['points'], dtype=float)
-
-                if original_points.ndim != 2 or original_points.shape[1] < 3:
+                points_data = data.get('points', []) if isinstance(data, dict) else data
+                point_axes = data.get('point_axes') if isinstance(data, dict) else None
+                try:
+                    points, original_axes, sidecar = split_points_for_3d_display(
+                        points_data,
+                        point_axes=point_axes,
+                    )
+                except ValueError:
                     continue
-
-                # Always keep only z,y,x
-                points = original_points[:, -3:]
 
                 if is_downsample_enabled(self.viewer):
                     factor = get_downsample_factor(self.viewer)
-                    points = np.array(
-                        [
-                            [
-                                point[0],
-                                point[1] / factor,
-                                point[2] / factor,
-                            ]
-                            for point in points
-                        ],
-                        dtype=float,
-                    )
+                    points = to_downsample_points(points, factor)
+                points = np.asarray(points, dtype=float).reshape((-1, 3))
 
                 layer_name = f"{os.path.basename(job_folder)}_{os.path.basename(latest_run)}"
                 layer = self.viewer.add_points(
@@ -291,7 +288,9 @@ class HumanInLoopWidget(QWidget):
                 )
 
                 if hasattr(layer, "metadata") and isinstance(layer.metadata, dict):
-                    layer.metadata["tubulemap_point_axes"] = ["z", "y", "x"]
+                    layer.metadata[POINT_AXES_KEY] = ["z", "y", "x"]
+                    layer.metadata[ORIGINAL_POINT_AXES_KEY] = original_axes
+                    layer.metadata[POINT_SIDECAR_KEY] = sidecar
                 # Store info
                 self.layer_run_map[layer.name] = {
                     "run_folder": latest_run,
@@ -351,28 +350,20 @@ class HumanInLoopWidget(QWidget):
             if os.path.exists(corrected_path):
                 with open(corrected_path, 'r') as f:
                     data = json.load(f)
-                # points = np.array(data['points'], dtype=float)
-                original_points = np.array(data['points'], dtype=float)
-
-                if original_points.ndim != 2 or original_points.shape[1] < 3:
+                points_data = data.get('points', []) if isinstance(data, dict) else data
+                point_axes = data.get('point_axes') if isinstance(data, dict) else None
+                try:
+                    points, original_axes, sidecar = split_points_for_3d_display(
+                        points_data,
+                        point_axes=point_axes,
+                    )
+                except ValueError:
                     continue
-
-                # Always keep only z,y,x
-                points = original_points[:, -3:]
 
                 if is_downsample_enabled(self.viewer):
                     factor = get_downsample_factor(self.viewer)
-                    points = np.array(
-                        [
-                            [
-                                point[0],
-                                point[1] / factor,
-                                point[2] / factor,
-                            ]
-                            for point in points
-                        ],
-                        dtype=float,
-                    )
+                    points = to_downsample_points(points, factor)
+                points = np.asarray(points, dtype=float).reshape((-1, 3))
 
                 layer_name = f"{os.path.basename(job_folder)}_{os.path.basename(latest_run)}_corrected"
                 layer = self.viewer.add_points(
@@ -383,7 +374,9 @@ class HumanInLoopWidget(QWidget):
                 )
 
                 if hasattr(layer, "metadata") and isinstance(layer.metadata, dict):
-                    layer.metadata["tubulemap_point_axes"] = ["z", "y", "x"]
+                    layer.metadata[POINT_AXES_KEY] = ["z", "y", "x"]
+                    layer.metadata[ORIGINAL_POINT_AXES_KEY] = original_axes
+                    layer.metadata[POINT_SIDECAR_KEY] = sidecar
                 # Store info
                 self.layer_run_map[layer.name] = {
                     "run_folder": latest_run,
@@ -447,32 +440,30 @@ class HumanInLoopWidget(QWidget):
                     status_path = info_dict["status_path"]
 
                     out_path = os.path.join(run_folder, "corrected_points.json")
-                    # downsample to original points
-                    points = layer.data.tolist()
-
-                    # Always save z,y,x
+                    layer_points = layer.data.tolist()
                     points = [
                         [
                             float(point[-3]),
                             float(point[-2]),
                             float(point[-1]),
                         ]
-                        for point in points
+                        for point in layer_points
                     ]
 
-                    # downsample to original points
                     if is_downsample_enabled(self.viewer):
                         factor = get_downsample_factor(self.viewer)
-                        points = [
-                            [
-                                point[0],
-                                point[1] * factor,
-                                point[2] * factor,
-                            ]
-                            for point in points
-                        ]
+                        points = to_original_points(points, factor)
 
-                    point_axes = ["z", "y", "x"]
+                    metadata = getattr(layer, "metadata", {}) or {}
+                    point_axes = metadata.get(
+                        ORIGINAL_POINT_AXES_KEY,
+                        ["z", "y", "x"],
+                    )
+                    points = restore_points_from_3d_display(
+                        points,
+                        point_axes,
+                        metadata.get(POINT_SIDECAR_KEY, []),
+                    )
 
                     with open(out_path, 'w') as f:
                         json.dump(
@@ -523,32 +514,30 @@ class HumanInLoopWidget(QWidget):
         status_path = info_dict["status_path"]
 
         out_path = os.path.join(run_folder, "corrected_points.json")
-        # downsample to original points
-        points = active_layer.data.tolist()
-
-        # Always save z,y,x
+        layer_points = active_layer.data.tolist()
         points = [
             [
                 float(point[-3]),
                 float(point[-2]),
                 float(point[-1]),
             ]
-            for point in points
+            for point in layer_points
         ]
 
-        # downsample to original points
         if is_downsample_enabled(self.viewer):
             factor = get_downsample_factor(self.viewer)
-            points = [
-                [
-                    point[0],
-                    point[1] * factor,
-                    point[2] * factor,
-                ]
-                for point in points
-            ]
+            points = to_original_points(points, factor)
 
-        point_axes = ["z", "y", "x"]
+        metadata = getattr(active_layer, "metadata", {}) or {}
+        point_axes = metadata.get(
+            ORIGINAL_POINT_AXES_KEY,
+            ["z", "y", "x"],
+        )
+        points = restore_points_from_3d_display(
+            points,
+            point_axes,
+            metadata.get(POINT_SIDECAR_KEY, []),
+        )
 
         with open(out_path, 'w') as f:
             json.dump(

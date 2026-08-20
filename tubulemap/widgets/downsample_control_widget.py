@@ -4,6 +4,10 @@ from qtpy.QtWidgets import QCheckBox, QDoubleSpinBox, QHBoxLayout, QLabel, QWidg
 DEFAULT_DOWNSAMPLE_FACTOR = 4.0
 _DOWNSAMPLE_STATE_BY_VIEWER_ID = {}
 
+POINT_AXES_KEY = "tubulemap_point_axes"
+ORIGINAL_POINT_AXES_KEY = "tubulemap_original_point_axes"
+POINT_SIDECAR_KEY = "tubulemap_point_sidecar"
+
 
 def _ensure_downsample_state(viewer):
     """Ensure downsample state."""
@@ -47,37 +51,108 @@ def set_downsample_factor(viewer, factor):
 
 
 def to_downsample_points(points, factor):
-    """Convert downsample points."""
+    """Convert canonical Z,Y,X points to downsampled coordinates."""
+    factor = float(factor)
+    if factor <= 0:
+        raise ValueError("Downsample factor must be greater than 0.")
+
     converted = []
     for point in points:
         values = list(point)
         if len(values) < 3:
-            continue
-        if len(values) >= 5:
-            # Already carries explicit T,C,Z,Y,X coordinates.
-            converted.append(
-                [float(values[0]), float(values[1]), float(values[2]), float(values[3]), float(values[4])]
-            )
-            continue
+            raise ValueError("Point must contain Z, Y and X coordinates.")
         z, y, x = float(values[-3]), float(values[-2]), float(values[-1])
-        converted.append([0.0, 0.0, z, y / factor, x / factor])
+        converted.append([z / factor, y / factor, x / factor])
     return converted
 
 
 def to_original_points(points, factor):
-    """Convert original points."""
+    """Restore canonical downsampled Z,Y,X points to original coordinates."""
+    factor = float(factor)
+    if factor <= 0:
+        raise ValueError("Downsample factor must be greater than 0.")
+
     converted = []
     for point in points:
         values = list(point)
         if len(values) < 3:
-            continue
-        if len(values) >= 5:
-            z, y, x = float(values[2]), float(values[3]), float(values[4])
-            converted.append([z, y * factor, x * factor])
-            continue
+            raise ValueError("Point must contain Z, Y and X coordinates.")
         z, y, x = float(values[-3]), float(values[-2]), float(values[-1])
-        converted.append([z, y, x])
+        converted.append([z * factor, y * factor, x * factor])
     return converted
+
+
+def split_points_for_3d_display(points, point_axes=None):
+    """Return canonical Z,Y,X points plus data needed to restore each original row."""
+    rows = [list(point) for point in points]
+    if not rows:
+        axes = list(point_axes) if point_axes else ["z", "y", "x"]
+        return [], axes, []
+
+    point_dim = len(rows[0])
+    if any(len(row) != point_dim for row in rows):
+        raise ValueError("All point rows must have the same dimensionality.")
+
+    if point_axes is None:
+        if point_dim == 3:
+            axes = ["z", "y", "x"]
+        elif point_dim == 5:
+            axes = ["t", "c", "z", "y", "x"]
+        else:
+            raise ValueError("Points must use 3D ZYX or declare point_axes.")
+    else:
+        axes = [str(axis).strip().lower() for axis in point_axes]
+
+    if len(axes) != point_dim:
+        raise ValueError("point_axes length must match the point row dimensionality.")
+    if not all(axis in axes for axis in ("z", "y", "x")):
+        raise ValueError("point_axes must contain z, y and x.")
+
+    spatial_indices = {axis: axes.index(axis) for axis in ("z", "y", "x")}
+    spatial_index_set = set(spatial_indices.values())
+    display_points = []
+    sidecar = []
+    for row in rows:
+        display_points.append(
+            [
+                float(row[spatial_indices["z"]]),
+                float(row[spatial_indices["y"]]),
+                float(row[spatial_indices["x"]]),
+            ]
+        )
+        sidecar.append(
+            {
+                str(index): float(value)
+                for index, value in enumerate(row)
+                if index not in spatial_index_set
+            }
+        )
+    return display_points, axes, sidecar
+
+
+def restore_points_from_3d_display(points, original_axes, sidecar=None):
+    """Rebuild original-dimensional point rows from canonical Z,Y,X points."""
+    axes = [str(axis).strip().lower() for axis in original_axes]
+    if not all(axis in axes for axis in ("z", "y", "x")):
+        raise ValueError("original_axes must contain z, y and x.")
+
+    sidecar = list(sidecar or [])
+    restored = []
+    for row_index, point in enumerate(points):
+        values = list(point)
+        if len(values) < 3:
+            raise ValueError("Point must contain Z, Y and X coordinates.")
+        z, y, x = [float(value) for value in values[-3:]]
+        spatial = {"z": z, "y": y, "x": x}
+        extra = sidecar[row_index] if row_index < len(sidecar) else {}
+        row = []
+        for index, axis in enumerate(axes):
+            if axis in spatial:
+                row.append(spatial[axis])
+            else:
+                row.append(float(extra.get(str(index), 0.0)))
+        restored.append(row)
+    return restored
 
 
 class DownsampleControlWidget(QWidget):

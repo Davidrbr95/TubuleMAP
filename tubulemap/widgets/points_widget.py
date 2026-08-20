@@ -11,7 +11,8 @@ import pandas as pd
 
 from qtpy.QtWidgets import (
     QWidget, QPushButton, QVBoxLayout, QSpinBox, 
-    QHBoxLayout, QLabel, QColorDialog, QListWidget, QFileDialog, QInputDialog
+    QHBoxLayout, QLabel, QColorDialog, QListWidget, QFileDialog, QInputDialog,
+    QMessageBox,
 )
 
 import napari
@@ -20,8 +21,13 @@ from tubulemap.utils.misc_utils import is_excel_running
 from tubulemap.cellpose_tracker.io_utils import normalize_points_to_zyx
 from tubulemap.utils.zarr_resolution import inspect_zarr_source
 from tubulemap.widgets.downsample_control_widget import (
+    ORIGINAL_POINT_AXES_KEY,
+    POINT_AXES_KEY,
+    POINT_SIDECAR_KEY,
     get_downsample_factor,
     is_downsample_enabled,
+    restore_points_from_3d_display,
+    split_points_for_3d_display,
     to_downsample_points,
     to_original_points,
 )
@@ -519,26 +525,19 @@ class PointsWidget(QWidget):
                 if not isinstance(point_axes, (list, tuple)):
                     point_axes = self._infer_point_axes_for_json(points_data)
 
-                normalized_points = normalize_points_to_zyx(points_data, source_axes=point_axes)
-                normalized_points = np.asarray(normalized_points, dtype=float)
+                normalized_points, original_axes, sidecar = split_points_for_3d_display(
+                    points_data,
+                    point_axes=point_axes,
+                )
 
                 if is_downsample_enabled(self.viewer):
                     factor = get_downsample_factor(self.viewer)
-                    points = np.array(
-                        [
-                            [
-                                point[0],
-                                point[1] / factor,
-                                point[2] / factor,
-                            ]
-                            for point in normalized_points
-                        ],
+                    points = np.asarray(
+                        to_downsample_points(normalized_points, factor),
                         dtype=float,
-                    )
+                    ).reshape((-1, 3))
                 else:
-                    points = normalized_points
-
-                output_axes = ["z", "y", "x"]
+                    points = np.asarray(normalized_points, dtype=float).reshape((-1, 3))
 
                 layer = self.viewer.add_points(
                     points,
@@ -547,7 +546,19 @@ class PointsWidget(QWidget):
                     name=f'{base_name}'
                 )
                 if hasattr(layer, "metadata") and isinstance(layer.metadata, dict):
-                    layer.metadata["tubulemap_point_axes"] = output_axes
+                    layer.metadata[POINT_AXES_KEY] = ["z", "y", "x"]
+                    layer.metadata[ORIGINAL_POINT_AXES_KEY] = original_axes
+                    layer.metadata[POINT_SIDECAR_KEY] = sidecar
+                    layer.metadata["tubulemap_json_was_dict"] = isinstance(payload, dict)
+                    layer.metadata["tubulemap_json_extra_fields"] = (
+                        {
+                            key: value
+                            for key, value in payload.items()
+                            if key not in {"points", "point_axes"}
+                        }
+                        if isinstance(payload, dict)
+                        else {}
+                    )
 
     def save_points(self):
         """
@@ -559,7 +570,6 @@ class PointsWidget(QWidget):
         if isinstance(points_layer, napari.layers.Points):
             points = points_layer.data.tolist()
 
-            # Always save points as z,y,x
             points = [
                 [
                     float(point[-3]),
@@ -569,19 +579,14 @@ class PointsWidget(QWidget):
                 for point in points
             ]
 
-            # downsample to original
             if is_downsample_enabled(self.viewer):
                 factor = get_downsample_factor(self.viewer)
-                points = [
-                    [
-                        point[0],
-                        point[1] * factor,
-                        point[2] * factor,
-                    ]
-                    for point in points
-                ]
+                points = to_original_points(points, factor)
 
-            point_axes = ["z", "y", "x"]
+            metadata = getattr(points_layer, "metadata", {}) or {}
+            point_axes = metadata.get(ORIGINAL_POINT_AXES_KEY, ["z", "y", "x"])
+            sidecar = metadata.get(POINT_SIDECAR_KEY, [])
+            points = restore_points_from_3d_display(points, point_axes, sidecar)
 
             options = QFileDialog.Options()
             file_name, _ = QFileDialog.getSaveFileName(
@@ -590,10 +595,12 @@ class PointsWidget(QWidget):
             )
 
             if file_name:
-                points_data = {
-                    'points': points,
-                    'point_axes': point_axes,
-                }
+                if metadata.get("tubulemap_json_was_dict", True):
+                    points_data = dict(metadata.get("tubulemap_json_extra_fields", {}))
+                    points_data['points'] = points
+                    points_data['point_axes'] = point_axes
+                else:
+                    points_data = points
                 with open(file_name, 'w') as f:
                     json.dump(points_data, f, indent=4)
         else:
@@ -706,7 +713,15 @@ class PointsListWidget(QWidget):
             
             # Re-import the data after Excel is closed
             updated_df = pd.read_excel(temp_file)
-            self.points_layer.data = updated_df.values
+            updated = updated_df[["Z", "Y", "X"]].to_numpy(dtype=float)
+            if len(updated) != len(self.points_layer.data):
+                QMessageBox.warning(
+                    self,
+                    "Point Count Changed",
+                    "Excel editing may change Z, Y and X values, but cannot add or remove rows.",
+                )
+                return
+            self.points_layer.data = updated
 
             # Update the points list in the UI
             self.update_points_list()
@@ -737,8 +752,10 @@ class PointsListWidget(QWidget):
         self.list_widget.clear()
         if self.points_layer is not None:
             for i, point in enumerate(self.points_layer.data):
-                point_3d = point[-3:]
-                self.list_widget.addItem(f"Point {i}: {point_3d}")
+                z, y, x = [float(value) for value in point[-3:]]
+                self.list_widget.addItem(
+                    f"Point {i}: Z={z:.3f}, Y={y:.3f}, X={x:.3f}"
+                )
             self.list_widget.setCurrentRow(self.current_index)
 
     def center_on_point(self):
@@ -784,7 +801,7 @@ class PointsListWidget(QWidget):
         
         The list wraps around when the end is reached.
         """
-        if self.points_layer is not None:
+        if self.points_layer is not None and len(self.points_layer.data) > 0:
             self.current_index = (self.current_index + 1) % len(self.points_layer.data)
             self.list_widget.setCurrentRow(self.current_index)
             self.center_on_point()
@@ -795,7 +812,7 @@ class PointsListWidget(QWidget):
         
         The list wraps around when the beginning is reached.
         """
-        if self.points_layer is not None:
+        if self.points_layer is not None and len(self.points_layer.data) > 0:
             self.current_index = (self.current_index - 1) % len(self.points_layer.data)
             self.list_widget.setCurrentRow(self.current_index)
             self.center_on_point()
@@ -809,6 +826,11 @@ class PointsListWidget(QWidget):
         if self.points_layer is not None and len(self.points_layer.data) > 0:
             self.changing_list = False
             save_index = self.current_index
+            metadata = getattr(self.points_layer, "metadata", {}) or {}
+            sidecar = list(metadata.get(POINT_SIDECAR_KEY, []))
+            if save_index < len(sidecar):
+                del sidecar[save_index]
+                metadata[POINT_SIDECAR_KEY] = sidecar
             self.points_layer.data = np.delete(self.points_layer.data, self.current_index, axis=0)
             self.current_index = max(0, save_index - 1)
             print('Table of data current after deletion')
@@ -830,6 +852,8 @@ class PointsListWidget(QWidget):
         Add a new point after the currently selected point, duplicating its position.
         """
         if self.points_layer is not None:
+            if len(self.points_layer.data) == 0:
+                return
             current_point = self.points_layer.data[self.current_index]
             self.changing_list = False
             save_index = self.current_index
@@ -838,6 +862,11 @@ class PointsListWidget(QWidget):
             else:
                 points = np.insert(self.points_layer.data, self.current_index, current_point, axis=0)
             self.points_layer.data = points
+            metadata = getattr(self.points_layer, "metadata", {}) or {}
+            sidecar = list(metadata.get(POINT_SIDECAR_KEY, []))
+            if sidecar and save_index < len(sidecar):
+                sidecar.insert(save_index + 1, dict(sidecar[save_index]))
+                metadata[POINT_SIDECAR_KEY] = sidecar
             self.current_index = save_index + 1
             self.update_points_list()  # Update the list widget here
             if len(self.points_layer.data) > 0:

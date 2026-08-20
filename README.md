@@ -11,19 +11,26 @@ Advances in tissue clearing and lightsheet microscopy enable mesoscale imaging o
 [Watch the demo video](./videos/highlevel_overview.mp4)
 ## Installation
 
-1. Create a virtual environment and activate it:
-    On Windows:
+1. Create a virtual environment with Python 3.11.0–3.11.11 and activate it.
+
+    On Windows using Conda:
 
     ```bash
-    conda create -n tubulemap python=3.11.0 ipython
+    conda create -n tubulemap python=3.11.11 ipython
     conda activate tubulemap
     ```
 
-    or
+    Alternatively, if you already have a compatible Python version installed, you can use `venv`:
 
     ```bash
     python -m venv tubulemap
     .\tubulemap\Scripts\activate
+    ```
+
+    Verify that the Python version is between 3.11.0 and 3.11.11:
+
+    ```bash
+    python --version
     ```
 
 2. [On mac silicon only] Install higra from conda-forge.
