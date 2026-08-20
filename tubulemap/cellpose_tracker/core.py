@@ -1,4 +1,6 @@
 from pathlib import Path
+import copy
+import numpy as np
 from tubulemap.cellpose_tracker.io_utils import *
 from tubulemap.cellpose_tracker.evaluation import *
 from tubulemap.cellpose_tracker.vector_ops import *
@@ -130,6 +132,95 @@ def first_attempt(trace):
     run_cellpose(trace)
     analyze_segmenation(trace)
     return
+
+
+def near_volume_boundary(trace, point=None):
+    """Return whether an XYZ point is within one diameter of a volume face."""
+    if point is None:
+        point = trace.curvenode[trace.pointIndex]
+    x, y, z = np.asarray(point, dtype=float)
+    z_size, y_size, x_size = trace.volume.shape
+    distance = min(
+        x,
+        x_size - 1 - x,
+        y,
+        y_size - 1 - y,
+        z,
+        z_size - 1 - z,
+    )
+    return distance <= float(trace.diameter)
+
+
+def _rotate_vector(vector, axis, angle_degrees):
+    """Rotate a vector around an axis using Rodrigues' formula."""
+    vector = np.asarray(vector, dtype=float).reshape(3)
+    axis = np.asarray(axis, dtype=float).reshape(3)
+    axis /= np.linalg.norm(axis)
+    angle = np.deg2rad(float(angle_degrees))
+    rotated = (
+        vector * np.cos(angle)
+        + np.cross(axis, vector) * np.sin(angle)
+        + axis * np.dot(axis, vector) * (1.0 - np.cos(angle))
+    )
+    return rotated / np.linalg.norm(rotated)
+
+
+@record_call
+def boundary_rotation_recovery(trace):
+    """Try sequential 2-D Cellpose planes near a boundary without Ultrack."""
+    _ensure_segmentation_imports()
+    point = get_point_curve_ras(trace.pointIndex, trace.curvenode)
+    base_vector = np.asarray(trace.vectors[-1], dtype=float).reshape(3)
+    base_vector /= np.linalg.norm(base_vector)
+
+    # Two perpendicular axes let the trace recover turns in any 3-D direction.
+    reference = np.array([0.0, 0.0, 1.0])
+    if abs(float(np.dot(base_vector, reference))) > 0.9:
+        reference = np.array([0.0, 1.0, 0.0])
+    axis_1 = np.cross(base_vector, reference)
+    axis_1 /= np.linalg.norm(axis_1)
+    axis_2 = np.cross(base_vector, axis_1)
+    axis_2 /= np.linalg.norm(axis_2)
+
+    candidates = []
+    for axis in (axis_1, axis_2):
+        for angle in (-20.0, -10.0, 10.0, 20.0):
+            vector = _rotate_vector(base_vector, axis, angle).reshape(3, 1)
+            set_slice_view(trace, vector=vector, points=point)
+            get_frame(trace)
+            run_cellpose(trace)
+            analyze_segmenation(trace)
+            if trace.found_mask:
+                candidates.append({
+                    "eccentricity": float(trace.df_current.iloc[-1]["eccentricity"]),
+                    "vector": vector.copy(),
+                    "current_slice_transform": trace.current_slice_transform,
+                    "current_raw": trace.current_raw.copy(),
+                    "current_valid_mask": trace.current_valid_mask.copy(),
+                    "current_mask": np.asarray(trace.current_mask).copy(),
+                    "df_current": trace.df_current.copy(deep=True),
+                    "centroid_ijk": copy.deepcopy(trace.centroid_ijk),
+                })
+
+    if not candidates:
+        trace.found_mask = False
+        trace.log.info("Boundary rotation recovery found no mask in 8 sequential planes.")
+        return False
+
+    best = min(candidates, key=lambda candidate: candidate["eccentricity"])
+    trace.current_slice_transform = best["current_slice_transform"]
+    trace.current_raw = best["current_raw"]
+    trace.current_valid_mask = best["current_valid_mask"]
+    trace.current_mask = best["current_mask"]
+    trace.df_current = best["df_current"]
+    trace.centroid_ijk = best["centroid_ijk"]
+    trace.vectors[-1] = best["vector"]
+    trace.found_mask = True
+    trace.rot_improved_ecc = True
+    trace.log.info(
+        "Boundary rotation recovery succeeded; continuing without 3-D Ultrack."
+    )
+    return True
 
 @record_call
 def ultrack_trouble_shooting_diameter(trace):
@@ -282,20 +373,53 @@ def looping_through_points(trace):
             trace.log.info('Initializing tracing...' + str(trace.pointIndex))
             intialize_trace(trace)
             continue
+
+        # Do not stop merely because the wide sampling plane overlaps a volume
+        # boundary. Stop only when the tracking centre itself has left the real
+        # volume; get_frame() handles partial planes with a validity mask.
+        if not point_inside_volume(trace):
+            trace.log.info("Tracking centre reached the volume boundary; saving and stopping.")
+            save_curve_nodes(trace, reset=True)
+            write_status(
+                trace,
+                status="done",
+                error_msg="Tracking centre reached the volume boundary",
+            )
+            break
         
         if trace.current_chunk is None:
             trace.log.info('Dynamic loading of new image chunk from zarr')
             trace.current_chunk = load_image(trace)
 
         #pure ultrack approach remove the first attmept and go straight to troubleshooting
+        recovered_near_boundary = False
         first_attempt(trace)
 
         if not trace.found_mask:
-            trace.log.info('No mask found in first_attempt: starting ultrack troubleshooting')
-            if trace.use_ultrack:
-                ultrack_trouble_shooting_diameter(trace)
+            if near_volume_boundary(trace):
+                trace.log.info(
+                    "No mask near volume boundary: trying sequential 2-D rotation recovery"
+                )
+                boundary_rotation_recovery(trace)
                 if not trace.found_mask:
-                    ultrack_trouble_shooting_full(trace)
+                    trace.log.info(
+                        "No mask found in boundary recovery; saving and stopping before Ultrack"
+                    )
+                    save_curve_nodes(trace, reset=True)
+                    write_status(
+                        trace,
+                        status="done",
+                        error_msg="No signal found near volume boundary",
+                    )
+                    break
+                recovered_near_boundary = True
+                trace.reset_trouble_shooting()
+            else:
+                trace.log.info('No mask found in first_attempt: starting ultrack troubleshooting')
+                if trace.use_ultrack:
+                    ultrack_trouble_shooting_diameter(trace)
+                    if not trace.found_mask:
+                        ultrack_trouble_shooting_full(trace)
         else:
             trace.log.info('No troubleshooting necessary: reseting the troubleshooting parameters')
             trace.reset_trouble_shooting()
@@ -319,7 +443,7 @@ def looping_through_points(trace):
             break
         
         ## TODO: ADD CRITERIA THAT CHECKS IF ECC is bellow the threshold or if you dont want to do rotations that it avoid them
-        if trace.use_rotations:
+        if trace.use_rotations and not recovered_near_boundary:
             # if trace.df_current.iloc[-1]['eccentricity'] >= trace.ecc_threshold:
             apply_rotations(trace)
 

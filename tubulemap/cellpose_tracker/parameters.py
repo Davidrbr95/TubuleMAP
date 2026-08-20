@@ -847,6 +847,7 @@ class TracingParameters:
         self.found_mask = False
         self.current_mask =  None
         self.current_raw =  None
+        self.current_valid_mask = None
         self.current_slice_transform =  None
         self.loop_time = None
         self.visited_functions = []
@@ -907,6 +908,7 @@ class TracingParameters:
             "current_slice_transform": self.current_slice_transform,  # keep by reference (usually replaced, not mutated)
             "current_raw": copy.deepcopy(self.current_raw),
             "current_mask": copy.deepcopy(self.current_mask),
+            "current_valid_mask": copy.deepcopy(getattr(self, "current_valid_mask", None)),
             "df_current": df.copy(),
             "found_mask": bool(self.found_mask),
             "centroid_ijk": copy.deepcopy(self.centroid_ijk),
@@ -918,6 +920,7 @@ class TracingParameters:
         self.current_slice_transform = bk["current_slice_transform"]
         self.current_raw   = bk["current_raw"]
         self.current_mask  = bk["current_mask"]
+        self.current_valid_mask = bk["current_valid_mask"]
         self.df_current    = bk["df_current"]
         self.found_mask    = bk["found_mask"]
         self.centroid_ijk  = bk["centroid_ijk"]

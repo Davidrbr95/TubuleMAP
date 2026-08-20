@@ -74,7 +74,7 @@ DEMO_SEED_PATH = (
 
 DEMO_OUTPUT_DIR = (
     DEMO_DIR
-    / "test_tracking_results"
+    / "test_tracking_results2"
 )
 
 

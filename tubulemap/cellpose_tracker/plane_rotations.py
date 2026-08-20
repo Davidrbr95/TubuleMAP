@@ -140,16 +140,19 @@ def apply_rotations(trace, ras_centroid_1st_attempt_v):
     trace.log.info("Applying rotations")
     centroid_coll = []
     raw_image_list = []
+    valid_mask_list = []
     slice_transforms = []
     for idx, v in enumerate(trace.rot_vectors):
         v = v.reshape(3,1)
         set_slice_view(trace, vector = v, points=ras_centroid_1st_attempt_v) 
         get_frame(trace)
         raw_image_list.append(trace.current_raw)
+        valid_mask_list.append(trace.current_valid_mask)
         slice_transforms.append(trace.current_slice_transform)
 
     #set the current image to the list of images obtained at different rotations
     trace.current_raw = raw_image_list 
+    trace.current_valid_mask = valid_mask_list
 
     run_cellpose(trace)
 
@@ -195,6 +198,7 @@ def identify_best_plane(trace, ecc_to_beat, ras_centroid_1st_attempt_v, trace_bk
         set_slice_view(trace, vector = v, points=ras_centroid_1st_attempt_v)
         trace.current_mask = trace.current_mask[idx]
         trace.current_raw = trace.current_raw[idx]
+        trace.current_valid_mask = trace.current_valid_mask[idx]
         col_keep = ['label','centroid-0','centroid-1','eccentricity','axis_major_length','axis_minor_length','orientation', 'equivalent_diameter_area', 'angle']
         new_values = trace.rot_df.iloc[[idx_data]][col_keep] # Correct new behavior
         trace.df_current = new_values
@@ -299,4 +303,3 @@ def rotate_to_improve_ecc(trace):
     apply_rotations(trace, ras_centroid_1st_attempt_v)
 
     identify_best_plane(trace, ecc_to_beat, ras_centroid_1st_attempt_v, trace_bk)
-    

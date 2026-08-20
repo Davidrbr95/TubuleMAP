@@ -174,6 +174,22 @@ def run_cellpose(trace):
                                          cellprob_threshold=0.3,
                                          channels=channels)
     
+    valid = getattr(trace, "current_valid_mask", None)
+    if valid is not None:
+        if isinstance(mask, list):
+            valid_list = valid if isinstance(valid, list) else [valid] * len(mask)
+            mask = [
+                np.where(np.asarray(vm, dtype=bool), np.asarray(m), 0)
+                for m, vm in zip(mask, valid_list)
+            ]
+        elif np.asarray(mask).ndim == 3 and isinstance(valid, list):
+            mask = np.stack([
+                np.where(np.asarray(vm, dtype=bool), np.asarray(m), 0)
+                for m, vm in zip(mask, valid)
+            ])
+        else:
+            mask = np.where(np.asarray(valid, dtype=bool), mask, 0)
+
     trace.current_mask = mask
     ### TODO: MIGHT NEED TO EDIT THIS TO BE A DIFFERENT BEHAVIOR DURING ROTATIONS
 

@@ -199,7 +199,54 @@ def get_frame(trace):
     """Get frame."""
     trace.resampler.SetTransform(trace.current_slice_transform)
     resampled = trace.resampler.Execute(trace.current_chunk)
-    trace.current_raw = sitk.GetArrayFromImage(resampled)[0]
+    raw = sitk.GetArrayFromImage(resampled)[0]
+
+    # Compute which output pixels map into the real chunk. This distinguishes
+    # real, dark voxels from SimpleITK's out-of-volume zero padding. Computing
+    # the coordinates on the 2-D output plane avoids allocating a second,
+    # potentially hundreds-of-megabytes 3-D chunk.
+    transform = trace.current_slice_transform
+    p00 = np.asarray(transform.TransformPoint((0.0, 0.0, 0.0)))
+    step_x = np.asarray(transform.TransformPoint((1.0, 0.0, 0.0))) - p00
+    step_y = np.asarray(transform.TransformPoint((0.0, 1.0, 0.0))) - p00
+    yy, xx = np.indices(raw.shape, dtype=np.float32)
+    source_points = (
+        p00[:, None, None]
+        + step_x[:, None, None] * xx
+        + step_y[:, None, None] * yy
+    )
+    source_origin = np.asarray(trace.current_chunk.GetOrigin())[:, None, None]
+    source_max = source_origin + (
+        np.asarray(trace.current_chunk.GetSize(), dtype=float) - 1
+    )[:, None, None]
+    valid_mask = np.all(
+        (source_points >= source_origin) & (source_points <= source_max),
+        axis=0,
+    )
+
+    # A large, perfectly black padded region can destabilize Cellpose. Replace
+    # only out-of-volume pixels with a representative real background value;
+    # the validity mask is retained so predictions there can be discarded.
+    if np.any(valid_mask):
+        background = np.percentile(raw[valid_mask], 5)
+        raw = raw.copy()
+        raw[~valid_mask] = background
+
+    trace.current_raw = raw
+    trace.current_valid_mask = valid_mask
+
+
+def point_inside_volume(trace, point=None):
+    """Return True when an XYZ tracking point lies inside the ZYX volume."""
+    if point is None:
+        point = trace.curvenode[trace.pointIndex]
+    x, y, z = np.asarray(point, dtype=float)
+    z_size, y_size, x_size = trace.volume.shape
+    return (
+        0 <= x < x_size
+        and 0 <= y < y_size
+        and 0 <= z < z_size
+    )
 
 
 def set_slice_view_ut(trace, points=None):
